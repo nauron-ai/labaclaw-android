@@ -1,3 +1,5 @@
+import java.io.ByteArrayOutputStream
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -109,19 +111,33 @@ android {
             !jniLibsDir.exists() || jniLibsDir.listFiles().isNullOrEmpty()
         }
         doLast {
+            val cargoNdkProbe = ByteArrayOutputStream()
+            val cargoNdkCheck = exec {
+                workingDir = rootProject.projectDir.resolve("android-bridge")
+                isIgnoreExitValue = true
+                standardOutput = cargoNdkProbe
+                errorOutput = cargoNdkProbe
+                commandLine("cargo", "ndk", "--version")
+            }
+            if (cargoNdkCheck.exitValue != 0) {
+                throw GradleException(
+                    "cargo-ndk is required to build the Android JNI bridge. " +
+                        "Install it with `cargo install cargo-ndk` or pre-populate app/src/main/jniLibs. " +
+                        cargoNdkProbe.toString().trim(),
+                )
+            }
+
             exec {
-                workingDir = rootProject.projectDir
+                workingDir = rootProject.projectDir.resolve("android-bridge")
                 commandLine(
                     "cargo",
                     "ndk",
                     "-t", "arm64-v8a",
                     "-t", "armeabi-v7a",
                     "-t", "x86_64",
-                    "-o", "app/src/main/jniLibs",
+                    "-o", "../app/src/main/jniLibs",
                     "build",
                     "--release",
-                    "--manifest-path",
-                    "android-bridge/Cargo.toml",
                 )
             }
         }
