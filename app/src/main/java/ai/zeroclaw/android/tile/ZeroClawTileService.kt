@@ -1,5 +1,6 @@
 package ai.zeroclaw.android.tile
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
@@ -33,13 +34,13 @@ class ZeroClawTileService : TileService() {
                 // Stop the agent
                 stopAgent()
                 tile.state = Tile.STATE_INACTIVE
-                tile.subtitle = "Stopped"
+                setSubtitleIfSupported(tile, "Stopped")
             }
             Tile.STATE_INACTIVE -> {
                 // Start the agent
                 startAgent()
                 tile.state = Tile.STATE_ACTIVE
-                tile.subtitle = "Running"
+                setSubtitleIfSupported(tile, "Running")
             }
             else -> {
                 // Open app for configuration
@@ -64,13 +65,19 @@ class ZeroClawTileService : TileService() {
 
         tile.state = if (isRunning) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
         tile.label = "ZeroClaw"
-        tile.subtitle = if (isRunning) "Running" else "Stopped"
+        setSubtitleIfSupported(tile, if (isRunning) "Running" else "Stopped")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             tile.subtitle = if (isRunning) "Running" else "Tap to start"
         }
 
         tile.updateTile()
+    }
+
+    private fun setSubtitleIfSupported(tile: Tile, subtitle: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            tile.subtitle = subtitle
+        }
     }
 
     private fun startAgent() {
@@ -92,6 +99,7 @@ class ZeroClawTileService : TileService() {
         startService(intent)
     }
 
+    @SuppressLint("StartActivityAndCollapseDeprecated")
     private fun openApp() {
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
