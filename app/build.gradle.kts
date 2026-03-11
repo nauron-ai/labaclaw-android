@@ -174,6 +174,8 @@ dependencies {
 
     // Security (Keystore)
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
+    implementation("com.google.errorprone:error_prone_annotations:2.28.0")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
