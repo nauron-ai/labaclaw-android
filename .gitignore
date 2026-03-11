@@ -1,0 +1,14 @@
+.DS_Store
+._*
+.gradle/
+.idea/
+build/
+app/build/
+app/src/main/jniLibs/
+android-bridge/target/
+local.properties
+release/
+*.keystore
+*.jks
+*.p12
+keystore.properties
